@@ -1,0 +1,103 @@
+---
+title: "AggregatePairedBurnUnburn"
+author: "Anna Talucci"
+date: "2024-04-18"
+output: html_document
+---
+
+# clear environment
+```{r}
+rm(list=ls())
+```
+
+# Overview
+Aggregate paired burned unburned data
+
+
+# Packages
+
+```{r}
+library(tidyverse)
+library(lubridate)
+```
+
+
+# Data
+
+## Predicted measurements
+```{r}
+datacubePred = read_csv("../data/dataCube/PermafrostFireDatacubeFinal.csv")
+```
+
+```{r}
+datacubePred
+```
+
+# Summary information
+
+```{r}
+unique(sort(datacubePred$fireYr))
+```
+```{r}
+unique(sort(datacubePred$siteId))
+```
+
+```{r}
+unique(sort(datacubePred$resName))
+```
+
+# Look at specific data
+```{r}
+datacubePred %>% filter(tsf==0)
+```
+
+```{r}
+datacubePred %>% filter(paired=="p5")
+```
+
+# aggregate burn and unburned pairs with summary stats
+
+```{r}
+( aggregate = datacubePred %>% 
+  group_by(resBiome, resName, submitNm, distur, permaExtent, paired, fireYr, tsf) %>%
+  summarise(n = n(),
+            mean = mean(predDepth),
+            sd   = sd(predDepth, na.rm=TRUE),
+            se   = sd / sqrt(n))
+)
+```
+
+# Check unique values of aggregated data
+
+```{r}
+unique(sort(aggregate$tsf))
+```
+
+```{r}
+aggregate$tsf = factor(aggregate$tsf, levels = c("u", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17","19", "20", "21", "29", "30", "31", "32",  "33", "35", "36", "39", "40", "41", "45", "46", "47", "48", "49", "50", "52", "114"))
+```
+
+
+```{r}
+aggregate %>% filter(if_any(tsf, is.na))
+```
+
+```{r}
+unique(aggregate$tsf)
+```
+
+```{r}
+aggregate 
+```
+
+```{r}
+unique(aggregate$resName)
+```
+
+# Write to csv
+
+```{r}
+write_csv(aggregate , '../outputs/aggregate/AggregatedBurnUnburnPairs.csv')
+```
+
+

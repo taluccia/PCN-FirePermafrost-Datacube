@@ -1,0 +1,129 @@
+---
+title: "Final Attributes"
+author: "Anna Talucci"
+date: "2024-03-27"
+output: html_document
+---
+
+# clear environment
+```{r}
+rm(list=ls())
+```
+
+# Overview
+Finalize datacube attributes
+
+
+# Packages
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(ggpubr)
+library(ggnewscale)
+library(ggthemes)
+```
+
+
+# Data
+
+## Predicted measurements
+```{r}
+datacubePred = read_csv("../data/dataCube/DatacubePermafrostFirePredicted.csv")
+```
+
+```{r}
+datacubePred
+```
+
+
+```{r}
+names(datacubePred)
+```
+
+```{r}
+unique(datacubePred$submitNm)
+```
+
+```{r}
+( rocha = datacubePred %>% filter(submitNm=="Rocha") )
+rocha %>% filter(siteId=="Anaktuvuk River fire")
+unique(rocha$fireYr)
+```
+
+# Final clean up
+
+## Fix fire year and unburned for specific site
+```{r}
+datacubePred$fireYr[datacubePred$siteId == "Anaktuvuk River fire"] <- 2007
+datacubePred$fireYr[datacubePred$siteId == "Jones Old Burn"] <- 1900
+datacubePred$distur[datacubePred$siteId == "lutose_unburn"] <- "unburned"
+```
+
+## Add Time since fire 
+
+```{r}
+( datacubePred1 = datacubePred %>% 
+  dplyr::select(plotId:resRealm, permaCombo:permaRelict, predDoy, predDepth) %>% 
+  mutate(tsf = year-fireYr)
+)
+
+```
+
+## Update TSF for unburned
+```{r}
+datacubePred1$tsf[datacubePred1$distur == "unburned"] <- "u"
+datacubePred1$resName[datacubePred1$paired == "p5"] <- "Arctic foothills tundra"
+```
+
+```{r}
+datacubePred1 %>% filter(paired=="p5")
+```
+
+```{r}
+unique(datacubePred1$tsf)
+```
+
+```{r}
+datacubePred1 %>% filter(if_any(tsf, is.na))
+```
+
+# Select final columns of interest
+
+```{r}
+( datacubePred2 = datacubePred1 %>%
+  dplyr::select(plotId:msrDepth, predDoy:tsf, resBiomeNm, resName, permaExtent) %>%
+    rename(resBiome = resBiomeNm)
+)
+```
+
+# Final Checks
+
+```{r}
+unique(sort(datacubePred2$lastNm))
+
+datacubePred2 %>% group_by(lastNm, submitNm) %>% summarize(count = n())
+```
+
+
+
+## Save FInal data cube
+
+```{r}
+write_csv(datacubePred2, '../outputs/dataCube/PermafrostFireDatacubeFinal.csv')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
