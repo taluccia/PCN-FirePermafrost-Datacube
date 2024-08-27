@@ -115,6 +115,10 @@ calc_B = function(x) {
     )
 ```
 
+```{r}
+dataCombine %>% filter(siteId ==("lutose_2000")) %>% filter(plotId ==("4-8")) %>% filter(fireYr==2000) %>% filter(year==2015) %>% write_csv(., "..//outputs/Table3.csv")
+```
+
 # Remove outliers, na, and INF
 
 ```{r}
