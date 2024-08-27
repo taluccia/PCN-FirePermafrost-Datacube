@@ -261,6 +261,7 @@ rm2023 = clean2023 %>% idAltDateFun()
 ```
 
 ## Combine Df together
+
 ```{r}
 combine2001 = merge(clean2001, rm2001[, c('plotId', 'siteId', 'year', 'minDate')], by = c('plotId', 'siteId', 'year'), all.x=TRUE) 
 combine2005 = merge(clean2005, rm2005[, c('plotId', 'siteId', 'year', 'minDate')], by = c('plotId', 'siteId', 'year'), all.x=TRUE) 
