@@ -105,8 +105,14 @@ unique(sort(datacubePred2$lastNm))
 datacubePred2 %>% group_by(lastNm, submitNm) %>% summarize(count = n())
 ```
 
-
-
+```{r}
+min(datacubePred2$year)
+max(datacubePred2$year)
+```
+```{r}
+(natali = datacubePred2 %>% filter(submitNm=="Natali") )
+unique(natali$siteId)
+```
 ## Save FInal data cube
 
 ```{r}
