@@ -5,10 +5,7 @@ date: "2023-09-21"
 output: html_document
 ---
 
-
-
-# clear environment
-```{r}
+```{r clear environment, include=FALSE}
 rm(list=ls())
 ```
 
@@ -1282,7 +1279,7 @@ clean <- function(df){ df %>%
          topoPos = topo_position, 
          srfH2O = surface_water) %>%
     mutate(msrType = as.character(msrType)) %>%
-    dplyr::select(plotId, siteId, cntryId, lastNm, submitNm, lat, lon, year, month, day, biome, distur, fireYr, paired, gtProbe, hitRock, orgDpth, srfH2O, topoPos, slope, vegCvr, msrDoy, msrType, msrDepth) %>%
+    dplyr::select(plotId, siteId, cntryId, lastNm, submitNm, lat, lon, year, month, day, biome, distur, fireYr, fireId, paired, gtProbe, hitRock, orgDpth, srfH2O, topoPos, slope, vegCvr, msrDoy, msrType, msrDepth) %>%
   mutate(msrType = recode_factor(msrType , "T" = "thaw", "TRUE"= "thaw", A = "active")) %>%
   mutate(biome = recode_factor(biome, B = "boreal", boreal = "boreal", "T" = "tundra", tundra = "tundra")) %>%
   mutate(distur = recode_factor(distur, burned = "burned", burn = "burned", Burned = "burned", Burn = "burned", '72burn' = "burned", Unburn = 'unburned', Unburned = 'unburned', unburn = 'unburned', unburned = 'unburned'))
@@ -1318,49 +1315,53 @@ glimpse(f10_clean)
 ```
 
 
-# Combine into datacube
+# Combine into one dataframe
 
 ```{r}
-dataCube = dplyr::bind_rows(f1_clean, f2_clean, f3_clean, f4_clean, f5_clean, f6_clean, f7_clean, f8_clean, f9_clean, f10_clean, f11_clean, f12_clean, f13_clean, f14_clean, f15_clean, f16_clean, f17_clean, f18_clean)
+dataset = dplyr::bind_rows(f1_clean, f2_clean, f3_clean, f4_clean, f5_clean, f6_clean, f7_clean, f8_clean, f9_clean, f10_clean, f11_clean, f12_clean, f13_clean, f14_clean, f15_clean, f16_clean, f17_clean, f18_clean)
 ```
 
 ```{r}
-dataCube
+dataset
 ```
+```{r}
+dataset %>% group_by(fireYr, fireId) %>% summarise(n = n()) %>% filter(fireYr != -9999)
+```
+
 Contributed data 52,468 rows
 ```{r}
-colnames(dataCube)
+colnames(dataset)
 ```
 
 ## Check Missing Day of month
 
 ```{r}
-( nadoy = dataCube %>% filter(is.na(msrDoy)) )
+( nadoy = dataset %>% filter(is.na(msrDoy)) )
 ```
 
 ```{r}
 unique(nadoy$submitNm)
 
-dataCube %>% filter(submitNm =="Dieleman")
+dataset %>% filter(submitNm =="Dieleman")
 ```
 
 ## Check and fix factors
 
 ```{r}
-unique(dataCube$hitRock)
-unique(dataCube$gtProbe)
+unique(dataset$hitRock)
+unique(dataset$gtProbe)
 ```
 
 ```{r}
-dataCube$hitRock[dataCube$hitRock==""]<-"n"
-dataCube$gtProbe[dataCube$gtProbe==""]<-"n"
-dataCube$gtProbe[is.na(dataCube$gtProbe)]<-"n"
+dataset$hitRock[dataset$hitRock==""]<-"n"
+dataset$gtProbe[dataset$gtProbe==""]<-"n"
+dataset$gtProbe[is.na(dataset$gtProbe)]<-"n"
 ```
 
 df[is.na(df)] 
 ```{r}
-unique(dataCube$hitRock)
-unique(dataCube$gtProbe)
+unique(dataset$hitRock)
+unique(dataset$gtProbe)
 ```
 
 ## Summarize missing data
@@ -1374,7 +1375,7 @@ missingDataSummary
 ```
 
 ```{r eval=FALSE, include=FALSE}
-write_csv(missingDataSummary, '../outputs/dataCube/PermafrostFireContributedDataMissingDataSummary.csv')
+write_csv(missingDataSummary, '../outputs/dataset/PermafrostFireContributedDataMissingDataSummary.csv')
 ```
 
 ## Save contributed data
@@ -1382,7 +1383,7 @@ write_csv(missingDataSummary, '../outputs/dataCube/PermafrostFireContributedData
 Contributed data 52,468 rows
 
 ```{r eval=FALSE, include=FALSE}
-write_csv(dataCube, '../outputs/dataCube/PermafrostFireContributedData.csv')
+write_csv(dataset, '../outputs/dataset/PermafrostFireContributedData.csv')
 ```
 
 ## Final clean for predicting
@@ -1395,15 +1396,15 @@ Contributed data 52,468 rows
 - remove missing day of month
 
 ```{r}
-dataCube %>% filter(if_any(paired, is.na)) #166
-dataCube %>% filter(hitRock == "y" ) #853
-dataCube %>% filter(gtProbe == "y" ) #2237
-dataCube %>% filter(if_any(msrDepth, is.na)) #440
-dataCube %>% filter(day==-9999) #903
+dataset %>% filter(if_any(paired, is.na)) #166
+dataset %>% filter(hitRock == "y" ) #853
+dataset %>% filter(gtProbe == "y" ) #2237
+dataset %>% filter(if_any(msrDepth, is.na)) #440
+dataset %>% filter(day==-9999) #903
 ```
 
 ```{r}
-( dataCubeFinal = dataCube %>% 
+( datasetFinal = dataset %>% 
     drop_na(paired) %>% 
     filter(!is.na(msrDoy)) %>% 
     filter(!is.na(msrDepth)) %>%
@@ -1415,7 +1416,7 @@ Data cube to predict on 48166 rows
 
 ### Summary of data removed
 ```{r}
-( difference = setdiff(dataCube,dataCubeFinal) )
+( difference = setdiff(dataset,datasetFinal) )
 
 ```
 
@@ -1438,16 +1439,16 @@ difference %>%
 ```
 
 ```{r}
-(pair = dataCube %>% filter(is.na(paired)) %>% dplyr::select(plotId, siteId, submitNm, paired) %>% group_by(plotId, siteId, submitNm) %>% summarize(n_paired = n()))
-msrDoy = dataCube %>% filter(is.na(msrDoy))  
-msrDepth = dataCube %>% filter(is.na(msrDepth))
-hitrock = dataCube %>% filter(hitRock == "y" )  
-gtprobe = dataCube %>%filter(gtProbe == "y" ) 
+(pair = dataset %>% filter(is.na(paired)) %>% dplyr::select(plotId, siteId, submitNm, paired) %>% group_by(plotId, siteId, submitNm) %>% summarize(n_paired = n()))
+msrDoy = dataset %>% filter(is.na(msrDoy))  
+msrDepth = dataset %>% filter(is.na(msrDepth))
+hitrock = dataset %>% filter(hitRock == "y" )  
+gtprobe = dataset %>%filter(gtProbe == "y" ) 
 ```
-## Save Datacube as csv
+## Save as csv
 
 ```{r eval=FALSE, include=FALSE}
-write_csv(dataCubeFinal, '../outputs/dataCube/PermafrostFireDataCube.csv')
+write_csv(datasetFinal, '../outputs/dataset/PermafrostFiredataset.csv')
 ```
 
 # Create points shapefile
@@ -1460,8 +1461,9 @@ df_to_sf <- function(x){
 ```
 
 ## Drop Lat Lon NA and convert to shapefile 
+
 ```{r}
-( dataCubePts = dataCubeFinal %>% 
+( datasetPts = datasetFinal %>% 
     df_to_sf() )
 ```
 
@@ -1469,13 +1471,13 @@ df_to_sf <- function(x){
 
 With missing day removed 51,565 rows
 ```{r}
-glimpse(dataCubePts)
+glimpse(datasetPts)
 ```
 
 
 ## write to shapefile
 ```{r eval=FALSE, include=FALSE}
-st_write(dataCubePts, "../outputs/dataCube/PermafrostFireDataCube.shp", driver="ESRI Shapefile")
+st_write(datasetPts, "../outputs/dataset/PermafrostFireDataset.shp", driver="ESRI Shapefile")
 ```
 
 

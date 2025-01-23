@@ -5,17 +5,16 @@ date: "2024-02-13"
 output: html_document
 ---
 
-
-# clear environment
-```{r}
+```{r clear environment, include=FALSE}
 rm(list=ls())
 ```
 
 # Overview
 
-Take extracted ERA 5 data from google earth engine...
+Take extracted ERA 5 data from Google Earth Engine calculate DOY to estimate (est) ALT from.
 
-ERA5 data was extract by year
+ERA5 data was extract by year.
+
 # Packages
 
 ```{r}
@@ -92,7 +91,7 @@ names(f2001)
 ```{r}
 selectColDf = function(x)  {
   x %>%
-    dplyr::select(plotId, siteId, cntryId, lastNm, submtNm, lat, lon, year, month, day, biome, distur, fireYr, paired, gtProbe, hitRock, orgDpth, srfH2O, topoPos, slope, vegCvr, msrDoy, msrType, msrDpth, resBiomNm, resBiomeNm, resEcId, resId, resName, resRelm, permCmb, permCnt, permLnd, permaCd, prmExtn, prmRlct,  contains("temperature_2m")) %>%
+    dplyr::select(plotId, siteId, cntryId, lastNm, submtNm, lat, lon, year, month, day, biome, distur, fireYr, fireId, paired, gtProbe, hitRock, orgDpth, srfH2O, topoPos, slope, vegCvr, msrDoy, msrType, msrDpth, resBiomNm, resBiomeNm, resEcId, resId, resName, resRelm, permCmb, permCnt, permLnd, permaCd, prmExtn, prmRlct,  contains("temperature_2m")) %>%
     mutate(id = row_number()) -> x
   return(x)
 }
@@ -196,7 +195,7 @@ clean2020 = df2020 %>% cleanDf()
 clean2023 = df2023 %>% cleanDf()
 ```
 
-# Function to Identify ALT date for prediction
+# Function to Identify ALT date for estimating
 
 ```{r}
 idAltDateFun = function(x)  {
@@ -298,7 +297,7 @@ Combine yearly data frames; rename columns that were truncated by EE.
 ```{r}
 ( 
 combineAll = dplyr::bind_rows(combine2001, combine2005, combine2006, combine2007, combine2008, combine2009, combine2010, combine2011, combine2012, combine2013, combine2014, combine2015, combine2016, combine2017, combine2018, combine2019, combine2020, combine2023) %>%
-  mutate(predDoy = minDate-14) %>%
+  mutate(estDoy = minDate-14) %>%
   rename(submitNm = submtNm, orgDepth = orgDpth, msrDepth = msrDpth, resBiomeNo = resBiomNm, resEcoId = resEcId, resRealm = resRelm, permaCombo=permCmb, permaCont =permCnt , permaLand = permLnd, permaCode=permaCd, permaExtent=prmExtn, permaRelict=prmRlct)
 )
 ```
@@ -316,7 +315,7 @@ unique(combineAll$lastNm)
 # write to csv
 
 ```{r}
-write.csv(combineAll,file = "../outputs/era5Clean/DatacubePermafrostFireERA5.csv", row.names = FALSE)
+write.csv(combineAll,file = "../outputs/era5Clean/PermafrostFireDatasetERA5.csv", row.names = FALSE)
 ```
 
 

@@ -51,6 +51,7 @@ rsconnect/
 # For Mac users computer specific files
 **/.DS_Store
 ._*
+._.*
 
 
 
