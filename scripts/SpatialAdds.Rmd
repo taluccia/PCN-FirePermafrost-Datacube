@@ -1,12 +1,11 @@
 ---
-title: "Datacube spatial adds"
+title: "Dataset spatial adds"
 author: "Anna Talucci"
 date: "2024-01-31"
 output: html_document
 ---
 
-# clear environment
-```{r}
+```{r clear environment, include=FALSE}
 rm(list=ls())
 ```
 
@@ -20,8 +19,8 @@ Publically available data for download used here:
 [Resolve Ecoregions](https://ecoregions.appspot.com/)
 [Resolve Ecoregions for download](https://hub.arcgis.com/datasets/37ea320eebb647c6838c23f72abae5ef/explore)
 
-
 # Packages
+
 ```{r}
 library(tidyverse)
 library(sf)
@@ -42,10 +41,10 @@ polarProj = "+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +x_0=0 +y_0=0 +datum=WG
 
 # Data
 
-## Datacube Points
+## Dataset Points
 
 ```{r}
-datacubePts = st_read("../data/dataCube/PermafrostFireDataCube.shp", "PermafrostFireDataCube")
+datasetPts = st_read("../data/dataset/PermafrostFiredataset.shp", "PermafrostFiredataset")
 ```
 
 
@@ -70,7 +69,7 @@ permafrost
 ```
 
 ```{r}
-permafrost_wgs = st_transform(permafrost, crs= st_crs(datacubePts))
+permafrost_wgs = st_transform(permafrost, crs= st_crs(datasetPts))
 ```
 
 ```{r}
@@ -102,7 +101,7 @@ unique(permafrost_wgs$LANDFORM)
 ## Join pts to ecozones
 
 ```{r}
-resPt = st_join(datacubePts, resTunBor) 
+resPt = st_join(datasetPts, resTunBor) 
 ```
 
 ```{r}
@@ -144,9 +143,15 @@ permResPt_Wgs
 ```{r}
 unique(permResPt_Wgs$submitNm)
 ```
+```{r}
+sort(unique(permResPt_Wgs$resName))
+```
+```{r}
+permResPt_Wgs %>% filter(resName == "Arctic coastal tundra")
+```
 
 ## write to shapefile
 
 ```{r eval=FALSE, include=FALSE}
-st_write(permResPt_Wgs, "../outputs/spatialDataCreate/PermafrostFireEcozoneDatacube.shp", driver="ESRI Shapefile")
+st_write(permResPt_Wgs, "../outputs/spatialDataCreate/PermafrostFireEcozonedataset.shp", driver="ESRI Shapefile")
 ```

@@ -1,16 +1,16 @@
 ---
-title: "PredictALT"
+title: "Estimate ALT"
 author: "Anna Talucci"
 date: "2024-02-13"
 output: html_document
 ---
 
-# clear environment
-```{r}
+```{r clear environment, include=FALSE}
 rm(list=ls())
 ```
 
 # Overview
+
 Take field measure active layer depth and predict maximum depth based on air temperature.
 
 # Packages
@@ -24,7 +24,7 @@ library(sf)
 # Data
 
 ```{r}
-data = read_csv("../data/dataCube/DatacubePermafrostFireERA5.csv")
+data = read_csv("../data/dataset/PermafrostFireDatasetERA5.csv")
 ```
 
 ```{r}
@@ -72,7 +72,7 @@ calc_A = function(x) {
 calc_B = function(x) {
   x %>% 
     group_by(year, id, lastNm, msrDoy) %>%
-    filter(TempDoy < predDoy) %>%
+    filter(TempDoy < estDoy) %>%
   filter(TempC > 0) %>%
     arrange(TempDoy) %>%
   summarize( 
@@ -97,7 +97,7 @@ calc_B = function(x) {
 ```{r}
 ( orgData = data %>% 
   group_by(year, id, lastNm) %>%
-  filter(TempDoy == predDoy)
+  filter(TempDoy == estDoy)
 )
   
 ```
@@ -111,7 +111,7 @@ calc_B = function(x) {
     mutate(A_sum = ifelse(is.na(A_sum), 0, A_sum),
            A =ifelse(is.na(A), 0, A)) %>%
     mutate(C = B/A) %>%
-    mutate(predDepth = round((msrDepth*C), 0)) 
+    mutate(estDepth = round((msrDepth*C), 0)) 
     )
 ```
 
@@ -122,24 +122,28 @@ dataCombine %>% filter(siteId ==("lutose_2000")) %>% filter(plotId ==("4-8")) %>
 # Remove outliers, na, and INF
 
 ```{r}
-dataCombine %>% filter_at(vars(predDepth), all_vars(is.infinite(.)))
-dataCombine %>% filter(if_any(predDepth, is.infinite))
-dataCombine %>% filter(if_any(predDepth, is.na))
+dataCombine %>% filter_at(vars(estDepth), all_vars(is.infinite(.)))
+dataCombine %>% filter(if_any(estDepth, is.infinite))
+dataCombine %>% filter(if_any(estDepth, is.na))
 ```
 
 # Remove Infinite values
 
 ```{r}
-( pred_infinite = dataCombine %>% 
-    filter_at(vars(predDepth), all_vars(is.infinite(.))) %>%
+( est_infinite = dataCombine %>% 
+    filter_at(vars(estDepth), all_vars(is.infinite(.))) %>%
     group_by(submitNm) %>%
     summarize(n= n())
 )
 ```
 ```{r}
 ( cleanDataCombine = dataCombine %>% 
-    filter_at(vars(predDepth), all_vars(!is.infinite(.))) 
+    filter_at(vars(estDepth), all_vars(!is.infinite(.))) 
 )
+```
+
+```{r}
+names(cleanDataCombine)
 ```
 
 ```{r}
@@ -149,6 +153,6 @@ unique(cleanDataCombine$lastNm)
 ### Write to csv
 
 ```{r}
-write.csv(cleanDataCombine, file = "../outputs/dataCube/DatacubePermafrostFirePredicted.csv", row.names=FALSE)
+write.csv(cleanDataCombine, file = "../outputs/dataset/FireAltEstimated.csv", row.names=FALSE)
 ```
 
