@@ -25,15 +25,16 @@ library(lubridate)
 # Data
 
 ## Estimated measurements
+
 ```{r}
-firealt = read_csv("../data/dataset/FireALTdataset.csv")
+firealt = read_csv("../outputs/dataset/FireAltEstimatedRawDataSpatialJoin.csv")
 ```
 
 ```{r}
 firealt
 ```
 
-# Summary information
+# View summary variables
 
 ```{r}
 unique(sort(firealt$paired))
@@ -63,8 +64,39 @@ firealt %>% filter(paired=="p5")
 # aggregate burn and unburned pairs with summary stats
 
 ```{r}
-( aggregate = firealt %>% 
-  group_by(resBiome, resName, submitNm, distur, permaExtent, paired, fireYr, fireId, tsf, tsfClass) %>%
+( pairs = firealt%>% 
+  group_by(submitNm, distur, paired, fireYr, year, tsf, tsfClass, permaExtent) %>%
+  summarise(
+    cntryId = paste(unique(cntryId), collapse = ', '),
+    lastNm = paste(unique(lastNm), collapse = ', '),
+    #lat = mean(lat),
+    #lon = mean(lon),
+    biome = paste(unique(biome), collapse = ', '),
+    #resName = paste(unique(resName), collapse = ', '), 
+    #resBiomeName = paste(unique(resBiomeName), collapse = ', '), 
+    #fireId = paste(unique(fireId), collapse = ', '),
+    #orgDepth = mean(orgDepth),
+    #srfH2O = paste(unique(srfH2O), collapse = ', '),
+    #topoPos = paste(unique(topoPos), collapse = ', '),
+    slope = mean(slope),
+    #vegCvr = paste(unique(vegCvr), collapse = ', '),
+    tsf = paste(unique(tsf), collapse = ', '),
+    tsfClass = paste(unique(tsfClass), collapse = ', '),
+    #estDoy = mean(estDoy),
+    estDepth = mean(estDepth),
+    n = n() )
+)
+```
+
+```{r}
+pairs %>% 
+  dplyr::select(-lastNm) %>% 
+  filter_all(any_vars(grepl(',', .)))
+```
+
+```{r}
+( pairs_mean_sd_se = firealt %>% 
+  group_by(submitNm, distur, paired, fireYr, year, tsf, tsfClass) %>%
   summarise(n = n(),
             mean = mean(estDepth),
             sd   = sd(estDepth, na.rm=TRUE),
@@ -72,54 +104,59 @@ firealt %>% filter(paired=="p5")
 )
 ```
 
-
-```{r}
-( burnedonly = aggregate %>% filter(distur=="burned") )
-```
-```{r}
-sort(unique(burnedonly$resName))
-```
-
-
 # Check unique values of aggregated data
 
 ```{r}
-unique(sort(aggregate$paired))
-```
-
-
-```{r}
-unique(sort(aggregate$tsf))
+sort(unique(pairs$paired))
 ```
 
 ```{r}
-aggregate$tsf = factor(aggregate$tsf, levels = c("u", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17","19", "20", "21", "29", "30", "31", "32",  "33", "35", "36", "39", "40", "41", "45", "46", "47", "48", "49", "50", "52", "114"))
-```
-
-```{r}
-aggregate$tsfClass = factor(aggregate$tsfClass, levels = c( "unburned", "0-3", "4-10", "11-20", "21-40", ">40"))
-```
-
-```{r}
-aggregate %>% filter(if_any(tsf, is.na))
-```
-
-```{r}
-unique(aggregate$tsf)
-```
-
-```{r}
-aggregate 
-```
-
-```{r}
-unique(aggregate$resName)
+pairs %>% group_by(paired) %>% summarize(n=n())
 ```
 
 # Write to csv
 
 ```{r}
-write_csv(aggregate , '../outputs/aggregate/AggregatedBurnUnburnPairs.csv')
+write_csv(pairs , '../outputs/dataset/FireALTPairsBurnedUnburned.csv')
 ```
 
 
+# Site Level
+
+```{r}
+( SiteLevel = firealt %>% 
+  group_by(submitNm, distur, siteId, fireYr, fireId, year) %>%
+  summarise(
+    cntryId = paste(unique(cntryId), collapse = ', '),
+    lastNm = paste(unique(lastNm), collapse = ', '),
+    lat = mean(lat),
+    lon = mean(lon),
+    biome = paste(unique(biome), collapse = ', '),
+    #fireId = paste(unique(fireId), collapse = ', '),
+    #paired = paste(unique(paired), collapse = ', '),
+    #gtProde = paste(unique(gtProbe), collapse = ', '),
+    #hitRock = paste(unique(hitRock), collapse = ', '),
+    orgDepth = mean(orgDepth),
+    #srfH2O = paste(unique(srfH2O), collapse = ', '),
+    #topoPos = paste(unique(topoPos), collapse = ', '),
+    #slope = mean(slope),
+    #vegCvr = paste(unique(vegCvr), collapse = ', '),
+    tsf = paste(unique(tsf), collapse = ', '),
+    tsfClass = paste(unique(tsfClass), collapse = ', '),
+    estDoy = mean(estDoy),
+    estDepth = mean(estDepth),
+    n = n()
+    
+    )
+)
+```
+
+```{r}
+SiteLevel %>% 
+  dplyr::select(-lastNm) %>% 
+  filter_all(any_vars(grepl(',', .)))
+```
+
+```{r}
+write.csv(SiteLevel, file = "../outputs/dataset/FireAltEstimatedSiteLevel.csv", row.names=FALSE)
+```

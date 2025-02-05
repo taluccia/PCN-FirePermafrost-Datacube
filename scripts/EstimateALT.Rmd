@@ -24,7 +24,7 @@ library(sf)
 # Data
 
 ```{r}
-data = read_csv("../data/dataset/PermafrostFireDatasetERA5.csv")
+data = read_csv("../outputs/era5Clean/PermafrostFireDatasetERA5.csv")
 ```
 
 ```{r}

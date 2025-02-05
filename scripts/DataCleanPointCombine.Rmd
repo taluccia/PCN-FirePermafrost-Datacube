@@ -36,7 +36,7 @@ wgs_proj =  "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs "
 ## vector of data files
 original data in "../data/GoogleDriveCsvFolder/"
 ```{r}
-f <- list.files(path = "../data/GoogleDriveCsv20240229/",
+f <- list.files(path = "../data/GoogleDriveCsv20250123/",
                 pattern = "*.csv", full.names = TRUE)
 ```
 
@@ -266,7 +266,7 @@ str(f4)
 
 ```{r}
 # fix incorrect logical columns
-f4$thaw_active <- read.csv(f[4], header = TRUE, colClasses = "character")[,20]
+#f4$thaw_active <- read.csv(f[4], header = TRUE, colClasses = "character")[,20]
 ```
 
 ```{r}
@@ -298,7 +298,8 @@ f4 %>% filter(is.na(thaw_depth))
                   ifelse(plot_id %in% c('23EF01B', '23EF03B', '23EF06B', '23EF16B', '23EF18B', '23EF20B', '23EF21B', '23EF24B', '23EF25B', '23EF29B', '23EF02C'), "d5",
                   ifelse(plot_id %in% c('23AP36B', '23AP37B', '23AP38B', '23AP42B', '23AP45B', '23AP44C'), "d6", 
                 ifelse(plot_id %in% c('23AP34B', '23AP40B', '23AP41B', '23AP35C'), "d7", "d8")))))))) %>%
-    mutate(submitNm="Diaz")
+    mutate(submitNm="Diaz") %>%
+    dplyr::select(-Transect_distance_m)
 )
 ```
 
@@ -1203,9 +1204,13 @@ str(f18)
 
 ```{r}
 # fix incorrect logical columns
-f18$thaw_active <- read.csv(f[18], header = TRUE, colClasses = "character")[,19]
+#f18$thaw_active <- read.csv(f[18], header = TRUE, colClasses = "character")[,19]
 ```
 
+```{r}
+
+f18
+```
 ```{r}
 # Check na for specific columns
 f18 %>% filter(is.na(lat)) 
@@ -1224,12 +1229,12 @@ f18 %>% filter(is.na(thaw_depth))
   mutate(date = as.Date(with(., paste(year, month, day,sep="-")), "%Y-%m-%d")) %>%
   mutate(msrDoy = yday(date)) %>%
   drop_na((lat))  %>%
-  mutate(paired = ifelse(plot_id %in% c('YE001B', 'YE016C'), "r1",
-                  ifelse(plot_id %in% c('YE002B',	'YE017C'), "r2",
-                  ifelse(plot_id %in% c('YE003B', 'YE014C'), "r3",
-                  ifelse(plot_id %in% c('YE014C',	'YE022C'), "r4",
-                  ifelse(plot_id %in% c('YE006B', 'YE007B',	'YE013C'), "r5",
-                  ifelse(plot_id %in% c('YE009B', 'YE010B', 'YE011B', 'YE012B', 'YE016C'), "r6", "r7"))))))) %>%
+  #mutate(paired = ifelse(plot_id %in% c('YE001B', 'YE016C'), "r1",
+                 # ifelse(plot_id %in% c('YE002B',	'YE017C'), "r2",
+                 # ifelse(plot_id %in% c('YE003B', 'YE014C'), "r3",
+                  #ifelse(plot_id %in% c('YE014C',	'YE022C'), "r4",
+                 # ifelse(plot_id %in% c('YE006B', 'YE007B',	'YE013C'), "r5",
+                 # ifelse(plot_id %in% c('YE009B', 'YE010B', 'YE011B', 'YE012B', 'YE016C'), "r6", "r7"))))))) %>%
     mutate(submitNm="Delcourt")
 )
 ```
@@ -1289,6 +1294,7 @@ clean <- function(df){ df %>%
 
 
 ## Apply clean function
+
 ```{r}
 f1_clean = clean(f1_dates)
 f2_clean = clean(f2_dates)
@@ -1311,7 +1317,8 @@ f18_clean = clean(f18_dates)
 ```
 
 ```{r}
-glimpse(f10_clean)
+glimpse(f4_clean)
+f4_clean
 ```
 
 
@@ -1322,8 +1329,18 @@ dataset = dplyr::bind_rows(f1_clean, f2_clean, f3_clean, f4_clean, f5_clean, f6_
 ```
 
 ```{r}
+dataset$fireYr[dataset$siteId == "Anaktuvuk River fire"] <- 2007
+dataset$fireYr[dataset$siteId == "Jones Old Burn"] <- 1900
+dataset$distur[dataset$siteId == "lutose_unburn"] <- "unburned"
+```
+
+```{r}
 dataset
 ```
+```{r}
+unique(dataset$msrType)
+```
+
 ```{r}
 dataset %>% group_by(fireYr, fireId) %>% summarise(n = n()) %>% filter(fireYr != -9999)
 ```
@@ -1331,6 +1348,7 @@ dataset %>% group_by(fireYr, fireId) %>% summarise(n = n()) %>% filter(fireYr !=
 Contributed data 52,468 rows
 ```{r}
 colnames(dataset)
+
 ```
 
 ## Check Missing Day of month
@@ -1396,7 +1414,7 @@ Contributed data 52,468 rows
 - remove missing day of month
 
 ```{r}
-dataset %>% filter(if_any(paired, is.na)) #166
+dataset %>% filter(if_any(paired, is.na)) #300
 dataset %>% filter(hitRock == "y" ) #853
 dataset %>% filter(gtProbe == "y" ) #2237
 dataset %>% filter(if_any(msrDepth, is.na)) #440
@@ -1405,7 +1423,7 @@ dataset %>% filter(day==-9999) #903
 
 ```{r}
 ( datasetFinal = dataset %>% 
-    drop_na(paired) %>% 
+    #drop_na(paired) %>% 
     filter(!is.na(msrDoy)) %>% 
     filter(!is.na(msrDepth)) %>%
     filter(hitRock != "y" ) %>% 
@@ -1473,7 +1491,9 @@ With missing day removed 51,565 rows
 ```{r}
 glimpse(datasetPts)
 ```
-
+```{r}
+unique(datasetPts$msrType)
+```
 
 ## write to shapefile
 ```{r eval=FALSE, include=FALSE}

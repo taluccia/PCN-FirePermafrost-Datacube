@@ -11,7 +11,8 @@ rm(list=ls())
 ```
 
 # Overview
-Aggregate paired burned unburned data
+
+This script aggregates raw measurements to the plot level. 
 
 
 # Packages
@@ -25,15 +26,16 @@ library(lubridate)
 # Data
 
 ## Estimated measurements
+
 ```{r}
-firealt = read_csv("../data/dataset/FireALTdataset.csv")
+firealt = read_csv("../outputs/dataset/FireAltEstimated.csv")
 ```
 
 ```{r}
 firealt
 ```
 
-# Summary information
+# View variables
 
 ```{r}
 unique(sort(firealt$paired))
@@ -50,39 +52,75 @@ unique(sort(firealt$plotId))
 unique(sort(firealt$siteId))
 ```
 
+
 ```{r}
-unique(sort(firealt$resName))
-```
-```{r}
-firealt %>% group_by(siteId, plotId, fireYr, year) %>% summarize(n=n())
+firealt %>% group_by(submitNm, siteId, plotId, fireYr, year) %>% summarize(rawMeasurements=n())
 ```
 
 ```{r}
-firealt %>% group_by(siteId, fireYr, year) %>% summarize(n=n())
+firealt %>% group_by(submitNm, siteId, fireYr, year) %>% summarize(rawMeasurments=n())
 ```
-388 sites 9,432 plots by year
+388 sites 9,446 plots by year unique based on location and year sampled.
 
 ```{r}
 firealt %>% group_by(siteId, fireYr) %>% summarize(n=n())
 ```
 
-# Look at specific data
+# Summarize raw measurments by submiter with n at plot and site and total raw measurments
 
 ```{r}
-firealt %>% filter(tsf==0)
+(
+summarizePlotSiteRaw = firealt %>% 
+  group_by(submitNm) %>% 
+  summarize(numberSites=length(unique(siteId)),       
+            numberPlots = length(unique(plotId)),       
+            numberMeasurements = n()) 
+)
+```
+```{r}
+summarizePlotSiteRaw %>% 
+  summarise(siteTotal = sum(numberSites, na.rm = TRUE),
+            plotTotal = sum(numberPlots, na.rm = TRUE),
+            measurementTotal = sum(numberMeasurements, na.rm = TRUE))
+```
+
+# Add time since fire
+```{r}
+( firealt_tsf = firealt %>% 
+  mutate(tsf = year-fireYr) %>%
+    mutate(tsfClass = ifelse(tsf %in% 0:3, "0-3",
+                                     ifelse(tsf %in% 4:10, "4-10",
+                                            ifelse(tsf %in% 11:20, "11-20",
+                                                   ifelse(tsf %in% 21:40, "21-40", ">40")))))
+)
+
 ```
 
 ```{r}
-firealt %>% filter(paired=="p5")
+firealt_tsf$tsf[firealt_tsf$distur == "unburned"] <- "u"
+firealt_tsf$tsfClass[firealt_tsf$distur == "unburned"] <- "unburned"
+```
+
+```{r}
+sort(unique(firealt_tsf$tsf))
+sort(unique(firealt_tsf$tsfClass))
+```
+```{r}
+firealt_tsf$tsf = factor(firealt_tsf$tsf, levels = c("u", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17","19", "20", "21", "29", "30", "31", "32",  "33", "35", "36", "39", "40", "41", "45", "46", "47", "48", "49", "50", "52", "114"))
+```
+
+```{r}
+firealt_tsf$tsfClass = factor(firealt_tsf$tsfClass, levels = c( "unburned", "0-3", "4-10", "11-20", "21-40", ">40"))
 ```
 
 # aggregate burn and unburned pairs with summary stats
 
 ```{r}
-firealt
+firealt_tsf
 ```
+
 ```{r}
-( sitePlot1 = firealt %>% 
+( sitePlot1 = firealt_tsf %>% 
   group_by(submitNm, distur, siteId, plotId, fireYr, year) %>%
   summarise(
     cntryId = paste(unique(cntryId), collapse = ', '),
@@ -104,107 +142,30 @@ firealt
     msrDoy = paste(unique(msrDoy), collapse = ', '),
     msrType = paste(unique(msrType), collapse = ', '),
     msrDepth = mean(msrDepth),
+    tsf = paste(unique(tsf), collapse = ', '),
+    tsfClass = paste(unique(tsfClass), collapse = ', '),
     estDoy = paste(unique(msrType), collapse = ', '),
     estDepth = mean(estDepth),
     n = n(),
-    tsf = paste(unique(tsf), collapse = ', '),
-    tsfClass = paste(unique(tsfClass), collapse = ', '),
-    resBiome = paste(unique(resBiome), collapse = ', '),
-    resName = paste(unique(resName), collapse = ', '),
-    permaExtent = paste(unique(permaExtent), collapse = ', ')
     )
 )
 ```
 ```{r}
 sitePlot1 %>% 
   dplyr::select(-lastNm) %>% 
-  filter_all(any_vars(grepl(',', .)))
+  filter_all(any_vars(grepl(',', .))) # checks for data aggregates that have multiples that need to be combined
+```
+```{r}
+firealt_tsf %>%  filter(plotId=="CG1-8B")
 ```
 
-```{r}
-( sitePlot2 = firealt %>% 
-  group_by(submitNm, distur, siteId, plotId, fireYr, year, month, day) %>%
-  summarise(
-    cntryId = paste(unique(cntryId), collapse = ', '),
-    lastNm = paste(unique(lastNm), collapse = ', '),
-    lat = paste(unique(lat), collapse = ', '),
-    lon = paste(unique(lon), collapse = ', '),
-    #month = paste(unique(month), collapse = ', '),
-    #day = paste(unique(day), collapse = ', '),
-    biome = paste(unique(biome), collapse = ', '),
-    fireId = paste(unique(fireId), collapse = ', '),
-    paired = paste(unique(paired), collapse = ', '),
-    gtProde = paste(unique(gtProbe), collapse = ', '),
-    hitRock = paste(unique(hitRock), collapse = ', '),
-    orgDepth = mean(orgDepth),
-    srfH2O = paste(unique(srfH2O), collapse = ', '),
-    topoPos = paste(unique(topoPos), collapse = ', '),
-    slope = mean(slope),
-    vegCvr = paste(unique(vegCvr), collapse = ', '),
-    msrDoy = paste(unique(msrDoy), collapse = ', '),
-    msrType = paste(unique(msrType), collapse = ', '),
-    msrDepth = mean(msrDepth),
-    estDoy = paste(unique(msrType), collapse = ', '),
-    estDepth = mean(estDepth),
-    n = n(),
-    tsf = paste(unique(tsf), collapse = ', '),
-    tsfClass = paste(unique(tsfClass), collapse = ', '),
-    resBiome = paste(unique(resBiome), collapse = ', '),
-    resName = paste(unique(resName), collapse = ', '),
-    permaExtent = paste(unique(permaExtent), collapse = ', ')
-    )
-)
-```
+
+
+# Final Plot aggregation
+
 
 ```{r}
-sitePlot2 %>% 
-  dplyr::select(-lastNm) %>% 
-  filter_all(any_vars(grepl(',', .)))
-```
-
-```{r}
-( sitePlot3 = firealt %>% 
-  group_by(submitNm, distur, siteId, plotId, fireYr, year, month, day, lat, lon) %>%
-  summarise(
-    cntryId = paste(unique(cntryId), collapse = ', '),
-    lastNm = paste(unique(lastNm), collapse = ', '),
-    #lat = paste(unique(lat), collapse = ', '),
-    #lon = paste(unique(lon), collapse = ', '),
-    #month = paste(unique(month), collapse = ', '),
-    #day = paste(unique(day), collapse = ', '),
-    biome = paste(unique(biome), collapse = ', '),
-    fireId = paste(unique(fireId), collapse = ', '),
-    paired = paste(unique(paired), collapse = ', '),
-    gtProde = paste(unique(gtProbe), collapse = ', '),
-    hitRock = paste(unique(hitRock), collapse = ', '),
-    orgDepth = mean(orgDepth),
-    srfH2O = paste(unique(srfH2O), collapse = ', '),
-    topoPos = paste(unique(topoPos), collapse = ', '),
-    slope = mean(slope),
-    vegCvr = paste(unique(vegCvr), collapse = ', '),
-    msrDoy = paste(unique(msrDoy), collapse = ', '),
-    msrType = paste(unique(msrType), collapse = ', '),
-    msrDepth = mean(msrDepth),
-    estDoy = paste(unique(estDoy), collapse = ', '),
-    estDepth = mean(estDepth),
-    n = n(),
-    tsf = paste(unique(tsf), collapse = ', '),
-    tsfClass = paste(unique(tsfClass), collapse = ', '),
-    resBiome = paste(unique(resBiome), collapse = ', '),
-    resName = paste(unique(resName), collapse = ', '),
-    permaExtent = paste(unique(permaExtent), collapse = ', ')
-    )
-)
-```
-
-```{r}
-sitePlot3 %>% 
-  dplyr::select(-lastNm) %>% 
-  filter_all(any_vars(grepl(',', .)))
-```
-
-```{r}
-( PlotLevel4 = firealt %>% 
+( PlotLevel4 = firealt_tsf %>% 
   group_by(submitNm, distur, siteId, plotId, fireYr, year) %>%
   summarise(
     cntryId = paste(unique(cntryId), collapse = ', '),
@@ -221,14 +182,12 @@ sitePlot3 %>%
     topoPos = paste(unique(topoPos), collapse = ', '),
     slope = mean(slope),
     vegCvr = paste(unique(vegCvr), collapse = ', '),
-    estDoy = paste(unique(estDoy), collapse = ', '),
-    estDepth = mean(estDepth),
-    n = n(),
     tsf = paste(unique(tsf), collapse = ', '),
     tsfClass = paste(unique(tsfClass), collapse = ', '),
-    resBiome = paste(unique(resBiome), collapse = ', '),
-    resName = paste(unique(resName), collapse = ', '),
-    permaExtent = paste(unique(permaExtent), collapse = ', ')
+    estDoy = paste(unique(estDoy), collapse = ', '),
+    estDepth = mean(estDepth),
+    n = n()
+    
     )
 )
 ```
@@ -241,17 +200,9 @@ PlotLevel4 %>%
 ```{r}
 names(PlotLevel4)
 ```
-```{r}
-firealt %>% filter(submitNm=="Olefeldt") %>% filter(distur=="unburned") %>% filter(siteId == "camsell_unburn") %>% filter(plotId=="1-1")
-```
 
 
 ```{r}
-firealt %>% 
-  group_by(resBiome, resName, submitNm, distur, permaExtent, siteId, plotId,  fireYr, fireId, tsf, tsfClass) %>%
-  summarise(n = n(),
-            mean = mean(estDepth),
-            sd   = sd(estDepth, na.rm=TRUE),
-            se   = sd / sqrt(n))
-
+write.csv(PlotLevel4, file = "../outputs/dataset/FireAltEstimatedPlotLevel.csv", row.names=FALSE)
 ```
+
