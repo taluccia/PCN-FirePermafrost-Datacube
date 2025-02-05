@@ -11,7 +11,7 @@ rm(list=ls())
 ```
 
 # Overview
-Aggregate paired burned unburned data
+Aggregate paired burned unburned data from raw field measurements.
 
 
 # Packages
@@ -27,7 +27,7 @@ library(lubridate)
 ## Estimated measurements
 
 ```{r}
-firealt = read_csv("../outputs/dataset/FireAltEstimatedRawDataSpatialJoin.csv")
+firealt = read_csv("../outputs/dataset/FireAltEstimatedRawData.csv")
 ```
 
 ```{r}
@@ -117,7 +117,7 @@ pairs %>% group_by(paired) %>% summarize(n=n())
 # Write to csv
 
 ```{r}
-write_csv(pairs , '../outputs/dataset/FireALTPairsBurnedUnburned.csv')
+write_csv(pairs , '../outputs/dataset/FireALTEstimatedPairsBurnedUnburned.csv')
 ```
 
 

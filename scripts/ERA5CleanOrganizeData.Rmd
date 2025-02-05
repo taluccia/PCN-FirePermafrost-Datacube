@@ -11,9 +11,7 @@ rm(list=ls())
 
 # Overview
 
-Take extracted ERA 5 data from Google Earth Engine calculate DOY to estimate (est) ALT from.
-
-ERA5 data was extract by year.
+This script takes extracted ERA5-Land data by year from Google Earth Engine for each raw measurement then reorganizes to for temperature and day of year (DOY) to estimate ALT.
 
 # Packages
 
@@ -330,7 +328,7 @@ unique(combineAll$lastNm)
 # write to csv
 
 ```{r}
-write.csv(combineAll,file = "../outputs/era5Clean/PermafrostFireDatasetERA5.csv", row.names = FALSE)
+write.csv(combineAll,file = "../outputs/era5Clean/RawDataWithERA5.csv", row.names = FALSE)
 ```
 
 

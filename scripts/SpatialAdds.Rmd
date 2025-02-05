@@ -12,12 +12,7 @@ rm(list=ls())
 
 # Overview
 
-
-Add Ecozones to points.
-
-Publically available data for download used here:
-[Resolve Ecoregions](https://ecoregions.appspot.com/)
-[Resolve Ecoregions for download](https://hub.arcgis.com/datasets/37ea320eebb647c6838c23f72abae5ef/explore)
+Add spatial data at the plot level and join plot level spatial adds to raw data. Spatial adds include ecozone and biome from [Resolve Ecoregions](https://hub.arcgis.com/datasets/37ea320eebb647c6838c23f72abae5ef/explore) and permafrost extent.
 
 # Packages
 
@@ -261,16 +256,10 @@ plots
 
 # Save files
 
-## write to shapefile
-
-```{r eval=FALSE, include=FALSE}
-st_write(permResPtPlots_Wgs, "../outputs/spatialDataCreate/FireAltEstimatedPlotLevelSpatialJoin.shp", driver="ESRI Shapefile")
-```
-
 ## write to csv
 
 ```{r}
-write.csv(plots, file = "../outputs/dataset/FireAltEstimatedPlotLevelSpatialJoin.csv", row.names=FALSE)
+write.csv(plots, file = "../outputs/dataset/FireAltEstimatedPlotLevel.csv", row.names=FALSE)
 ```
 
 # Join ecozone and permafrost to raw measurments
@@ -302,5 +291,5 @@ sort(unique(rawData$resName))
 # write to csv
 
 ```{r}
-write.csv(rawData, file = "../outputs/dataset/FireAltEstimatedRawDataSpatialJoin.csv", row.names=FALSE)
+write.csv(rawData, file = "../outputs/dataset/FireAltEstimatedRawData.csv", row.names=FALSE)
 ```

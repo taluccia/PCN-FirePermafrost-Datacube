@@ -11,7 +11,7 @@ rm(list=ls())
 
 # Overview
 
-Take field measure active layer depth and predict maximum depth based on air temperature.
+This script estimates end of season Active Layer thickness (ALT) based on time of field measurement, depth of field measurement and ERA5-Land temperature date. 
 
 # Packages
 
@@ -24,7 +24,7 @@ library(sf)
 # Data
 
 ```{r}
-data = read_csv("../outputs/era5Clean/PermafrostFireDatasetERA5.csv")
+data = read_csv("../outputs/era5Clean/RawDataWithERA5.csv")
 ```
 
 ```{r}

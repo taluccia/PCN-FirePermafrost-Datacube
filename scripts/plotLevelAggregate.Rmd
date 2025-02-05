@@ -14,7 +14,6 @@ rm(list=ls())
 
 This script aggregates raw measurements to the plot level. 
 
-
 # Packages
 
 ```{r}
@@ -85,6 +84,7 @@ summarizePlotSiteRaw %>%
 ```
 
 # Add time since fire
+
 ```{r}
 ( firealt_tsf = firealt %>% 
   mutate(tsf = year-fireYr) %>%
@@ -119,53 +119,10 @@ firealt_tsf$tsfClass = factor(firealt_tsf$tsfClass, levels = c( "unburned", "0-3
 firealt_tsf
 ```
 
-```{r}
-( sitePlot1 = firealt_tsf %>% 
-  group_by(submitNm, distur, siteId, plotId, fireYr, year) %>%
-  summarise(
-    cntryId = paste(unique(cntryId), collapse = ', '),
-    lastNm = paste(unique(lastNm), collapse = ', '),
-    lat = paste(unique(lat), collapse = ', '),
-    lon = paste(unique(lon), collapse = ', '),
-    month = paste(unique(month), collapse = ', '),
-    day = paste(unique(day), collapse = ', '),
-    biome = paste(unique(biome), collapse = ', '),
-    fireId = paste(unique(fireId), collapse = ', '),
-    paired = paste(unique(paired), collapse = ', '),
-    gtProde = paste(unique(gtProbe), collapse = ', '),
-    hitRock = paste(unique(hitRock), collapse = ', '),
-    orgDepth = mean(orgDepth),
-    srfH2O = paste(unique(srfH2O), collapse = ', '),
-    topoPos = paste(unique(topoPos), collapse = ', '),
-    slope = mean(slope),
-    vegCvr = paste(unique(vegCvr), collapse = ', '),
-    msrDoy = paste(unique(msrDoy), collapse = ', '),
-    msrType = paste(unique(msrType), collapse = ', '),
-    msrDepth = mean(msrDepth),
-    tsf = paste(unique(tsf), collapse = ', '),
-    tsfClass = paste(unique(tsfClass), collapse = ', '),
-    estDoy = paste(unique(msrType), collapse = ', '),
-    estDepth = mean(estDepth),
-    n = n(),
-    )
-)
-```
-```{r}
-sitePlot1 %>% 
-  dplyr::select(-lastNm) %>% 
-  filter_all(any_vars(grepl(',', .))) # checks for data aggregates that have multiples that need to be combined
-```
-```{r}
-firealt_tsf %>%  filter(plotId=="CG1-8B")
-```
-
-
-
 # Final Plot aggregation
 
-
 ```{r}
-( PlotLevel4 = firealt_tsf %>% 
+( PlotLevel = firealt_tsf %>% 
   group_by(submitNm, distur, siteId, plotId, fireYr, year) %>%
   summarise(
     cntryId = paste(unique(cntryId), collapse = ', '),
@@ -193,7 +150,7 @@ firealt_tsf %>%  filter(plotId=="CG1-8B")
 ```
 
 ```{r}
-PlotLevel4 %>% 
+PlotLevel %>% 
   dplyr::select(-lastNm) %>% 
   filter_all(any_vars(grepl(',', .)))
 ```
@@ -203,6 +160,6 @@ names(PlotLevel4)
 
 
 ```{r}
-write.csv(PlotLevel4, file = "../outputs/dataset/FireAltEstimatedPlotLevel.csv", row.names=FALSE)
+write.csv(PlotLevel, file = "../outputs/dataset/FireAltEstimatedPlotLevel.csv", row.names=FALSE)
 ```
 
