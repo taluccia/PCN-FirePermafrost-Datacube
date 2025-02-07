@@ -45,6 +45,9 @@ raw = read_csv("../outputs/dataset/FireAltEstimated.csv")
 plots = read_csv("../outputs/dataset/FireAltEstimatedPlotLevel.csv")
 ```
 
+```{r}
+plots
+```
 
 ## Spatial Data
 
@@ -131,6 +134,9 @@ resPtplots_prj
 permResPtplots = st_join(resPtplots_prj, permafrost) 
 ```
 
+```{r}
+permResPtplots
+```
 
 
 ### Rename Columns
@@ -259,7 +265,7 @@ plots
 ## write to csv
 
 ```{r}
-write.csv(plots, file = "../outputs/dataset/FireAltEstimatedPlotLevel.csv", row.names=FALSE)
+write.csv(plots, file = "../outputs/dataset/2025-02-04_FireAltEstimatedPlotLevel.csv", row.names=FALSE)
 ```
 
 # Join ecozone and permafrost to raw measurments
@@ -281,6 +287,11 @@ plots
 
 
 # Data checks
+
+```{r}
+names(rawData)
+```
+
 ```{r}
 unique(rawData$submitNm)
 ```
@@ -291,5 +302,5 @@ sort(unique(rawData$resName))
 # write to csv
 
 ```{r}
-write.csv(rawData, file = "../outputs/dataset/FireAltEstimatedRawData.csv", row.names=FALSE)
+write.csv(rawData, file = "../outputs/dataset/2025-02-04_FireAltEstimatedRawData.csv", row.names=FALSE)
 ```
