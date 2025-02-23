@@ -83,6 +83,11 @@ unique(f1$veg_cover_class)
 f1 %>% distinct(site_id,year,month,day,fire_id,burn_unburn)
 str(f1)
 ```
+```{r}
+unique(f1$slope)
+f1$slope[f1$slope == "F"] <- "flat"
+unique(f1$slope)
+```
 
 ```{r}
 # Add date 
@@ -142,6 +147,14 @@ unique(f2$year)
 ```
 
 ```{r}
+unique(f2$slope)
+
+f2$slope[f2$slope == "F"] <- "flat"
+f2$slope[f2$slope == "S"] <- "sloped"
+unique(f2$slope)
+```
+
+```{r}
 # Create single fire year
 ( f2_dates = f2 %>%
   mutate(fire_year = pmax(fire_year_1 , fire_year_2, fire_year_3, na.rm = TRUE)) %>%
@@ -193,6 +206,14 @@ f2_missingSum = f2_dates %>% summarize(ct = n(),
 # read without 17th column, which is redundant to the gt_prob column
 f3 <- read.csv(f[3], header = TRUE)
 f3
+```
+
+```{r}
+unique(f3$slope)
+
+f3$slope[f3$slope == "F"] <- "flat"
+f3$slope[f3$slope == "S"] <- "sloped"
+unique(f3$slope)
 ```
 
 ```{r}
@@ -261,6 +282,8 @@ f4 <- read.csv(f[4], header = TRUE)
 f4
 ```
 ```{r}
+
+
 str(f4)
 ```
 
@@ -298,8 +321,10 @@ f4 %>% filter(is.na(thaw_depth))
                   ifelse(plot_id %in% c('23EF01B', '23EF03B', '23EF06B', '23EF16B', '23EF18B', '23EF20B', '23EF21B', '23EF24B', '23EF25B', '23EF29B', '23EF02C'), "d5",
                   ifelse(plot_id %in% c('23AP36B', '23AP37B', '23AP38B', '23AP42B', '23AP45B', '23AP44C'), "d6", 
                 ifelse(plot_id %in% c('23AP34B', '23AP40B', '23AP41B', '23AP35C'), "d7", "d8")))))))) %>%
-    mutate(submitNm="Diaz") %>%
-    dplyr::select(-Transect_distance_m)
+    mutate(submitNm="Diaz",
+           slope_cat = ifelse(slope==0, "flat", "sloped")) %>%
+    dplyr::select(-Transect_distance_m, -slope) %>%
+    rename(slope =slope_cat)
 )
 ```
 
@@ -326,6 +351,12 @@ f4_missingSum = f4_dates %>% summarize(ct = n(),
 f5 <- read.csv(f[5], header = TRUE)
 f5
 ```
+```{r}
+unique(f5$slope)
+
+f5$slope[f5$slope == "F"] <- "flat"
+unique(f5$slope)
+```
 
 Fix incorrect logical columns
 ```{r}
@@ -339,7 +370,12 @@ f5 %>% distinct(site_id,year,month,day,fire_id,burn_unburn)
 ```{r}
 str(f5)
 ```
+```{r}
+unique(f5$slope)
 
+f5$slope[f5$slope == "F"] <- "flat"
+unique(f5$slope)
+```
 ```{r}
 unique(f5$site_id)
 ```
@@ -406,14 +442,23 @@ f5_missingSum = f5_dates %>% summarize(ct = n(),
 f6 <- read.csv(f[6], header = TRUE)
 f6
 ```
+
+
 ```{r}
 str(f6)
 ```
-
 ```{r}
-## fix incorrect logical columns
+# fix slope, which was read as logical
 f6$slope <- read.csv(f[6], header = TRUE, colClasses = "character")[,20]
 ```
+
+```{r}
+unique(f6$slope)
+
+f6$slope[f6$slope == "F"] <- "flat"
+unique(f6$slope)
+```
+
 ```{r}
 # Check na for specific columns
 f6 %>% filter(is.na(lat)) 
@@ -463,6 +508,14 @@ f7
 ```
 ```{r}
 str(f7)
+```
+
+```{r}
+unique(f7$slope)
+
+f7$slope[f7$slope == "F"] <- "flat"
+f7$slope[f7$slope == "S"] <- "sloped"
+unique(f7$slope)
 ```
 
 ```{r}
@@ -523,6 +576,13 @@ f8
 ```
 
 ```{r}
+unique(f8$slope)
+
+f8$slope[f8$slope == "S"] <- "sloped"
+unique(f8$slope)
+```
+
+```{r}
 # set gt_probe
 f8$gt_probe <- "n"
 
@@ -579,6 +639,11 @@ f8_missingSum = f8_dates %>% summarize(ct = n(),
 ```{r}
 f9 <- read.csv(f[9], header = TRUE) 
 f9
+```
+
+```{r}
+unique(f9$slope)
+
 ```
 
 ```{r}
@@ -666,6 +731,15 @@ f9_missingSum = f9_dates %>% summarize(ct = n(),
 f10 <- read.csv(f[10], header = TRUE)
 f10
 ```
+
+```{r}
+unique(f10$slope)
+
+
+f10$slope[f10$slope == "S"] <- "sloped"
+unique(f10$slope)
+```
+
 ```{r}
 str(f10)
 glimpse(f10)
@@ -717,6 +791,10 @@ f11
 str(f11)
 ```
 
+```{r}
+unique(f11$slope)
+
+```
 
 ```{r}
 # Fixes 
@@ -777,6 +855,10 @@ f12 <- read.csv(f[12], header = TRUE)
 f12
 ```
 
+```{r}
+unique(f12$slope)
+
+```
 ```{r}
 # fix incorrect logical columns
 # organic depth is missing, but set to NA
@@ -869,6 +951,14 @@ str(f13)
 ```
 
 ```{r}
+unique(f13$slope)
+
+f13$slope[f13$slope == "F"] <- "flat"
+f13$slope[f13$slope == "S"] <- "sloped"
+unique(f13$slope)
+```
+
+```{r}
 # fix incorrect logical columns
 f13$organic_depth <- as.numeric(gsub(">", "",f13$organic_depth))
 
@@ -929,6 +1019,8 @@ f14 <- read.csv(f[14], header = TRUE)
 f14
 ```
 
+
+
 ```{r}
 # fix incorrect logical columns
 f14$slope <- read.csv(f[14], header = TRUE, colClasses = "character")[,20]
@@ -939,7 +1031,13 @@ f14$organic_depth <- as.numeric(gsub(">", "",f14$organic_depth))
 
 f14 %>% distinct(site_id,year,month,day,fire_id,burn_unburn)
 ```
+```{r}
+unique(f14$slope)
 
+f14$slope[f14$slope == "F"] <- "flat"
+
+unique(f14$slope)
+```
 ```{r}
 # Check na for specific columns
 f14 %>% filter(is.na(lat)) 
@@ -1001,6 +1099,13 @@ f15 <- read.csv(f[15], header = TRUE)
 f15
 ```
 
+```{r}
+unique(f15$slope)
+
+f15$slope[f15$slope == "F"] <- "flat"
+f15$slope[f15$slope == "S"] <- "sloped"
+unique(f15$slope)
+```
 ```{r}
 # fix incorrect logical columns
 f15$thaw_active <- read.csv(f[15], header = TRUE, colClasses = "character")[,19]
@@ -1074,6 +1179,8 @@ f16
 f16 %>% filter(is.na(thaw_depth))
 ```
 
+
+
 ```{r}
 # fix incorrect logical columns
 f16$slope <- read.csv(f[16], header = TRUE, colClasses = "character")[,20]
@@ -1083,7 +1190,13 @@ f16$organic_depth <- as.numeric(f16$organic_depth)
 f16$thaw_depth <- as.numeric(f16$thaw_depth)
 f16$fire_year[f16$site_id == "Anaktuvuk River fire"] <- 2007
 ```
+```{r}
+unique(f16$slope)
 
+f16$slope[f16$slope == "F"] <- "flat"
+f16$slope[f16$slope == "S"] <- "sloped"
+unique(f16$slope)
+```
 ```{r}
 # Check na for specific columns
 f16 %>% filter(is.na(lat)) 
@@ -1148,7 +1261,18 @@ f17 <- read.csv(f[17], header = TRUE)
 f17
 ```
 ```{r}
+# fix slope, which was read as logical
+f17$slope <- read.csv(f[17], header = TRUE, colClasses = "character")[,20]
+
 str(f17)
+```
+
+```{r}
+unique(f17$slope)
+
+f17$slope[f17$slope == "F"] <- "flat"
+f17$slope[f17$slope == "S"] <- "sloped"
+unique(f17$slope)
 ```
 
 ```{r}
@@ -1203,6 +1327,14 @@ str(f18)
 ```
 
 ```{r}
+unique(f18$slope)
+
+f18$slope[f18$slope == "F"] <- "flat"
+f18$slope[f18$slope == "S"] <- "sloped"
+unique(f18$slope)
+```
+
+```{r}
 # fix incorrect logical columns
 #f18$thaw_active <- read.csv(f[18], header = TRUE, colClasses = "character")[,19]
 ```
@@ -1235,7 +1367,8 @@ f18 %>% filter(is.na(thaw_depth))
                   #ifelse(plot_id %in% c('YE014C',	'YE022C'), "r4",
                  # ifelse(plot_id %in% c('YE006B', 'YE007B',	'YE013C'), "r5",
                  # ifelse(plot_id %in% c('YE009B', 'YE010B', 'YE011B', 'YE012B', 'YE016C'), "r6", "r7"))))))) %>%
-    mutate(submitNm="Delcourt")
+    mutate(submitNm="Delcourt") %>%
+    select(-slope_deg)
 )
 ```
 
@@ -1259,12 +1392,34 @@ f18_missingSum = f18_dates %>% summarize(ct = n(),
 
 # Match Data structure across dataframes 
 
+```{r}
+glimpse(f1_dates)
+glimpse(f2_dates)
+glimpse(f3_dates)
+glimpse(f4_dates)
+glimpse(f5_dates)
+glimpse(f6_dates)
+glimpse(f7_dates)
+glimpse(f8_dates)
+glimpse(f9_dates)
+glimpse(f10_dates)
+glimpse(f11_dates)
+glimpse(f12_dates)
+glimpse(f13_dates)
+glimpse(f14_dates)
+glimpse(f15_dates)
+glimpse(f16_dates)
+glimpse(f17_dates)
+glimpse(f18_dates)
+
+```
+
 # Function to clean
 ```{r}
 clean <- function(df){ df %>%
   mutate(across(c(plot_id, site_id, fire_id), as.character)) %>% 
-  mutate(across(c(fire_year, organic_depth, slope, day), as.numeric)) %>% 
-    mutate(across(c(fire_year, organic_depth, slope, day), ~replace(., is.na(.), -9999))) %>%
+  mutate(across(c(fire_year, organic_depth, day), as.numeric)) %>% 
+    mutate(across(c(fire_year, organic_depth, day), ~replace(., is.na(.), -9999))) %>%
     mutate(across(day, ~coalesce(., 0))) %>%
   rename(plotId = plot_id,
          siteId = site_id, 
@@ -1286,6 +1441,7 @@ clean <- function(df){ df %>%
     mutate(msrType = as.character(msrType)) %>%
     dplyr::select(plotId, siteId, cntryId, lastNm, submitNm, lat, lon, year, month, day, biome, distur, fireYr, fireId, paired, gtProbe, hitRock, orgDpth, srfH2O, topoPos, slope, vegCvr, msrDoy, msrType, msrDepth) %>%
   mutate(msrType = recode_factor(msrType , "T" = "thaw", "TRUE"= "thaw", A = "active")) %>%
+    #mutate(slope = recode_factor(slope, "F" = "flat", S = "sloped", f = "flat", s = "sloped")) %>%
   mutate(biome = recode_factor(biome, B = "boreal", boreal = "boreal", "T" = "tundra", tundra = "tundra")) %>%
   mutate(distur = recode_factor(distur, burned = "burned", burn = "burned", Burned = "burned", Burn = "burned", '72burn' = "burned", Unburn = 'unburned', Unburned = 'unburned', unburn = 'unburned', unburned = 'unburned'))
 }
@@ -1317,8 +1473,25 @@ f18_clean = clean(f18_dates)
 ```
 
 ```{r}
+glimpse(f1_clean)
+glimpse(f2_clean)
+glimpse(f3_clean)
 glimpse(f4_clean)
-f4_clean
+glimpse(f5_clean)
+glimpse(f6_clean)
+glimpse(f7_clean)
+glimpse(f8_clean)
+glimpse(f9_clean)
+glimpse(f10_clean)
+glimpse(f11_clean)
+glimpse(f12_clean)
+glimpse(f13_clean)
+glimpse(f14_clean)
+glimpse(f15_clean)
+glimpse(f16_clean)
+glimpse(f17_clean)
+glimpse(f18_clean)
+
 ```
 
 
@@ -1497,7 +1670,7 @@ unique(datasetPts$msrType)
 
 ## write to shapefile
 ```{r eval=FALSE, include=FALSE}
-st_write(datasetPts, "../outputs/dataset/PermafrostFireDataset.shp", driver="ESRI Shapefile")
+st_write(datasetPts, "../outputs/dataset/2024-02-21_PermafrostFireDataset.shp", driver="ESRI Shapefile")
 ```
 
 

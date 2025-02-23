@@ -13,7 +13,6 @@ This repo includes scripts for development of a synthesized dataset of estimate 
 4. `EstimateALT.Rmd` --- Takes the output from 3 and predict ALT measurements.
 5. `PlotLevelAggregate.Rmd` --- Takes the output from 3 and predict ALT measurements.
 6. `SpatialAdds.Rmd` ---This scripts takes the output from step 1 and adds spatial attributes including ecozones and permafrost extent.
-
 7. `PairsAggregate.Rmd` --- Takes the output from 6 and aggregates the data by burned-unburned pairs.
 
 --- No Longer needed

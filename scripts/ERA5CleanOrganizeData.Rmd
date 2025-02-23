@@ -28,7 +28,7 @@ library(data.table)
 
 ## vector of data files
 ```{r}
-f <- list.files(path = "../data/ERA5DataEE20250128/",
+f <- list.files(path = "../data/ERA5DataEE20250222/",
                 pattern = "*.csv", full.names = TRUE)
 ```
 
@@ -328,7 +328,7 @@ unique(combineAll$lastNm)
 # write to csv
 
 ```{r}
-write.csv(combineAll,file = "../outputs/era5Clean/RawDataWithERA5.csv", row.names = FALSE)
+write.csv(combineAll,file = "../outputs/era5Clean/RawDataWithERA5_2025-02-22.csv", row.names = FALSE)
 ```
 
 

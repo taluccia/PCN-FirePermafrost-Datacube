@@ -27,7 +27,7 @@ library(lubridate)
 ## Estimated measurements
 
 ```{r}
-firealt = read_csv("../outputs/dataset/2025-02-04_FireAltEstimatedRawData.csv")
+firealt = read_csv("../outputs/dataset/2025-02-22_FireAltEstimatedRawData.csv")
 ```
 
 ```{r}
@@ -121,7 +121,7 @@ pairs %>% group_by(paired) %>% summarize(n=n())
 # Write to csv
 
 ```{r}
-write_csv(pairs , '../outputs/dataset/2025-02-04_FireALTEstimatedPairsBurnedUnburned.csv')
+write_csv(pairs , '../outputs/dataset/2025-02-22_FireALTEstimatedPairsBurnedUnburned.csv')
 ```
 
 
@@ -162,5 +162,5 @@ SiteLevel %>%
 ```
 
 ```{r}
-write.csv(SiteLevel, file = "../outputs/dataset/2025-02-04_FireAltEstimatedSiteLevel.csv", row.names=FALSE)
+write.csv(SiteLevel, file = "../outputs/dataset/2025-02-22_FireAltEstimatedSiteLevel.csv", row.names=FALSE)
 ```

@@ -38,11 +38,11 @@ polarProj = "+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +x_0=0 +y_0=0 +datum=WG
 
 ## Dataset
 ```{r}
-raw = read_csv("../outputs/dataset/FireAltEstimated.csv")
+raw = read_csv("../outputs/dataset/FireAltEstimated_2025-02-22.csv")
 ```
 
 ```{r}
-plots = read_csv("../outputs/dataset/FireAltEstimatedPlotLevel.csv")
+plots = read_csv("../outputs/dataset/FireAltEstimatedPlotLevel_2025-02-22.csv")
 ```
 
 ```{r}
@@ -302,5 +302,5 @@ sort(unique(rawData$resName))
 # write to csv
 
 ```{r}
-write.csv(rawData, file = "../outputs/dataset/2025-02-04_FireAltEstimatedRawData.csv", row.names=FALSE)
+write.csv(rawData, file = "../outputs/dataset/2025-02-22_FireAltEstimatedRawData.csv", row.names=FALSE)
 ```

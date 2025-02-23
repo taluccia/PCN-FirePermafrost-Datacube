@@ -27,7 +27,7 @@ library(lubridate)
 ## Estimated measurements
 
 ```{r}
-firealt = read_csv("../outputs/dataset/FireAltEstimated.csv")
+firealt = read_csv("../outputs/dataset/FireAltEstimated_2025-02-22.csv")
 ```
 
 ```{r}
@@ -160,6 +160,6 @@ names(PlotLevel)
 
 
 ```{r}
-write.csv(PlotLevel, file = "../outputs/dataset/FireAltEstimatedPlotLevel.csv", row.names=FALSE)
+write.csv(PlotLevel, file = "../outputs/dataset/FireAltEstimatedPlotLevel_2025-02-22.csv", row.names=FALSE)
 ```
 

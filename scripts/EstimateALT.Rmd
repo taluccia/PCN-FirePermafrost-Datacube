@@ -24,7 +24,7 @@ library(sf)
 # Data
 
 ```{r}
-data = read_csv("../outputs/era5Clean/RawDataWithERA5.csv")
+data = read_csv("../outputs/era5Clean/RawDataWithERA5_2025-02-22.csv")
 ```
 
 ```{r}
@@ -153,6 +153,6 @@ unique(cleanDataCombine$lastNm)
 ### Write to csv
 
 ```{r}
-write.csv(cleanDataCombine, file = "../outputs/dataset/FireAltEstimated.csv", row.names=FALSE)
+write.csv(cleanDataCombine, file = "../outputs/dataset/FireAltEstimated_2025-02-22.csv", row.names=FALSE)
 ```
 
