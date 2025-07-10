@@ -1,4 +1,4 @@
-# Permafrost Carbon Network Synthesis Estimated FireALT Dataset
+# FireALT Data Synthesis
 
 
 This repository contains scripts central to the following data synthesis effort that includes a publish data set and accompanying data paper listed below. The scripts were used for the development of a synthesized data set of estimate active layer thickness of burned/unburned sites across the high northern latitudes. 
