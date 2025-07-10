@@ -13,7 +13,7 @@ This repository contains scripts central to the following data synthesis effort 
 
 ![](img/2024-02-04_PCNMapOverviewBottomLegendResolve.jpg)
 
-## Scripts
+### Scripts
 
 1. `DataCleanToPointCombine.Rmd` --- This script takes each data contribution and checks abnormalities and formatting issues. It fixes any issues. Data is then combines into a single data frame and converted in to a spatial data set and saved as a shapefile. 
 2. `ERA5GeeScript.Rmd` --- GEE Script for pulling ERA5 data using JavaScript Code editor.
