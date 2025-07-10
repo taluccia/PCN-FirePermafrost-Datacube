@@ -11,6 +11,7 @@ This repository contains scripts central to the following data synthesis effort 
 
 [Link to paper](https://doi.org/10.5194/essd-17-2887-2025)
 
+![](img/2024-02-04_PCNMapOverviewBottomLegendResolve.jpg)
 
 ## Scripts
 
