@@ -9,6 +9,11 @@ output: html_document
 rm(list=ls())
 ```
 
+```{r setup, include=FALSE}
+library(tictoc)
+tic("Total Run Time")
+```
+
 # Overview
 
 This script takes extracted ERA5-Land data by year from Google Earth Engine for each raw measurement then reorganizes to for temperature and day of year (DOY) to estimate ALT.
@@ -327,9 +332,11 @@ unique(combineAll$lastNm)
 
 # write to csv
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 write.csv(combineAll,file = "../outputs/era5Clean/RawDataWithERA5_2025-02-22.csv", row.names = FALSE)
 ```
 
-
+```{r end-timer, echo=TRUE}
+toc()
+```
 
